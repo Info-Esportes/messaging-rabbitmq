@@ -125,6 +125,23 @@ class ConsumerConfig
 
     public function toArray(): array
     {
-        return get_class_vars(self::class);
+        return [
+            'host' => $this->host,
+            'port' => $this->port,
+            'user' => $this->user,
+            'password' => $this->password,
+            'vhost' => $this->vhost,
+            'exchange' => $this->exchange,
+            'connection_timeout' => $this->connectionTimeout,
+            'read_timeout' => $this->readTimeout,
+            'write_timeout' => $this->writeTimeout,
+            'heartbeat' => $this->heartbeat,
+            'keepalive' => $this->keepalive,
+            'prefetch_count' => $this->prefetchCount,
+            'auto_ack' => $this->autoAck,
+            'no_local' => $this->noLocal,
+            'exclusive' => $this->exclusive,
+            'no_wait' => $this->noWait,
+        ];
     }
 }
