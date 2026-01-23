@@ -23,7 +23,7 @@ Framework-agnostic messaging core for RabbitMQ with support for Email, SMS, and 
 
 ## Requirements
 
-- PHP 8.0 or higher
+- PHP 7.4 or higher (7.4, 8.0, 8.1, 8.2, 8.3)
 - ext-json
 - RabbitMQ server
 

@@ -219,7 +219,7 @@ class MessageFactoryTest extends TestCase
     public function testCanMakeMessageStatic(): void
     {
         $message = MessageFactory::make('sms', [
-            'recipient' => '+5511999999999',
+            'phone' => '+5511999999999',
             'data' => ['message' => 'Static message'],
         ], 'test-app');
 
