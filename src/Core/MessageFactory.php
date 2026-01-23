@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace InfoEsportes\Messaging\Core;
 
+use InfoEsportes\Messaging\DTO\EmailMessage;
+use InfoEsportes\Messaging\DTO\SMSMessage;
+use InfoEsportes\Messaging\DTO\WhatsAppMessage;
 use InfoEsportes\Messaging\Exceptions\MessageException;
 use InfoEsportes\Messaging\Exceptions\ValidationException;
 
@@ -18,42 +21,44 @@ class MessageFactory
         $this->validator = new MessageValidator();
     }
 
-    public static function make(string $type, array $data, string $source = 'unknown'): Message
+    public static function make(string $type, array|EmailMessage|SMSMessage|WhatsAppMessage $data, string $source = 'unknown'): Message
     {
         $factory = new self($source);
 
         switch ($type) {
             case MessageType::EMAIL:
-                return $factory->createEmailMessage(
-                    $data['to'],
-                    $data['subject'],
-                    $data['body'],
-                    $data['template'] ?? null,
-                    $data['variables'] ?? [],
-                    $data['metadata'] ?? [],
-                    $data['priority'] ?? MessagePriority::NORMAL
-                );
+                $dto = $data instanceof EmailMessage ? $data : EmailMessage::fromArray($data);
+                return $factory->createEmailMessageFromDTO($dto);
 
             case MessageType::SMS:
-                return $factory->createSMSMessage(
-                    $data['phone'],
-                    $data['message'],
-                    $data['metadata'] ?? [],
-                    $data['priority'] ?? MessagePriority::NORMAL
-                );
+                $dto = $data instanceof SMSMessage ? $data : SMSMessage::fromArray($data);
+                return $factory->createSMSMessageFromDTO($dto);
 
             case MessageType::WHATSAPP:
-                return $factory->createWhatsAppMessage(
-                    $data['phone'],
-                    $data['message'],
-                    $data['media'] ?? null,
-                    $data['metadata'] ?? [],
-                    $data['priority'] ?? MessagePriority::HIGH
-                );
+                $dto = $data instanceof WhatsAppMessage ? $data : WhatsAppMessage::fromArray($data);
+                return $factory->createWhatsAppMessageFromDTO($dto);
 
             default:
                 throw new MessageException("Unsupported message type: {$type}");
         }
+    }
+
+    /**
+     * Create email message from DTO.
+     *
+     * @throws ValidationException
+     */
+    public function createEmailMessageFromDTO(EmailMessage $dto): Message
+    {
+        return $this->createEmailMessage(
+            $dto->to,
+            $dto->subject,
+            $dto->body,
+            $dto->template,
+            $dto->variables,
+            $dto->metadata,
+            $dto->priority
+        );
     }
 
     /**
@@ -102,6 +107,21 @@ class MessageFactory
     }
 
     /**
+     * Create SMS message from DTO.
+     *
+     * @throws ValidationException
+     */
+    public function createSMSMessageFromDTO(SMSMessage $dto): Message
+    {
+        return $this->createSMSMessage(
+            $dto->phone,
+            $dto->message,
+            $dto->metadata,
+            $dto->priority
+        );
+    }
+
+    /**
      * Create SMS message.
      *
      * @param string $phone    Phone number
@@ -137,6 +157,22 @@ class MessageFactory
             ['message' => $message],
             array_merge(['source' => $this->defaultSource], $metadata),
             ['priority' => $priority]
+        );
+    }
+
+    /**
+     * Create WhatsApp message from DTO.
+     *
+     * @throws ValidationException
+     */
+    public function createWhatsAppMessageFromDTO(WhatsAppMessage $dto): Message
+    {
+        return $this->createWhatsAppMessage(
+            $dto->phone,
+            $dto->message,
+            $dto->media,
+            $dto->metadata,
+            $dto->priority
         );
     }
 

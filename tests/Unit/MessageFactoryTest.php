@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace InfoEsportes\Messaging\Tests\Unit;
 
+use InfoEsportes\Messaging\DTO\EmailMessage;
+use InfoEsportes\Messaging\DTO\SMSMessage;
+use InfoEsportes\Messaging\DTO\WhatsAppMessage;
 use InfoEsportes\Messaging\Core\MessageFactory;
 use InfoEsportes\Messaging\Core\MessagePriority;
 use InfoEsportes\Messaging\Core\MessageType;
@@ -227,5 +230,113 @@ class MessageFactoryTest extends TestCase
         $this->assertTrue('+5511999999999' === $message->getRecipient(), 'Recipient should match');
         $this->assertTrue('Static message' === $message->getData()['message'], 'Message content should match');
         $this->assertTrue('test-app' === $message->getMetadata()['source'], 'Source should match');
+    }
+
+    public function testCanMakeEmailMessageWithDTO(): void
+    {
+        $dto = new EmailMessage(
+            to: 'test@example.com',
+            subject: 'Test Subject',
+            body: 'Test Body',
+            priority: MessagePriority::NORMAL
+        );
+
+        $message = MessageFactory::make(MessageType::EMAIL, $dto, 'test-app');
+
+        $this->assertEquals('email', $message->getType());
+        $this->assertEquals('test@example.com', $message->getRecipient());
+        $this->assertEquals('Test Subject', $message->getData()['subject']);
+        $this->assertEquals('Test Body', $message->getData()['body']);
+    }
+
+    public function testCanMakeSMSMessageWithDTO(): void
+    {
+        $dto = new SMSMessage(
+            phone: '+5511999999999',
+            message: 'DTO SMS message',
+            priority: MessagePriority::HIGH
+        );
+
+        $message = MessageFactory::make(MessageType::SMS, $dto, 'test-app');
+
+        $this->assertEquals('sms', $message->getType());
+        $this->assertEquals('+5511999999999', $message->getRecipient());
+        $this->assertEquals('DTO SMS message', $message->getData()['message']);
+    }
+
+    public function testCanMakeWhatsAppMessageWithDTO(): void
+    {
+        $dto = new WhatsAppMessage(
+            phone: '+5511999999999',
+            message: 'DTO WhatsApp message',
+            media: 'https://example.com/image.jpg',
+            priority: MessagePriority::HIGH
+        );
+
+        $message = MessageFactory::make(MessageType::WHATSAPP, $dto, 'test-app');
+
+        $this->assertEquals('whatsapp', $message->getType());
+        $this->assertEquals('+5511999999999', $message->getRecipient());
+        $this->assertEquals('DTO WhatsApp message', $message->getData()['message']);
+        $this->assertEquals('https://example.com/image.jpg', $message->getData()['media']);
+    }
+
+    public function testEmailDTOFromArray(): void
+    {
+        $data = [
+            'to' => 'test@example.com',
+            'subject' => 'Test',
+            'body' => 'Body',
+            'template' => 'welcome',
+            'variables' => ['name' => 'John'],
+            'metadata' => ['key' => 'value'],
+            'priority' => MessagePriority::HIGH,
+        ];
+
+        $dto = EmailMessage::fromArray($data);
+
+        $this->assertEquals('test@example.com', $dto->to);
+        $this->assertEquals('Test', $dto->subject);
+        $this->assertEquals('Body', $dto->body);
+        $this->assertEquals('welcome', $dto->template);
+        $this->assertEquals(['name' => 'John'], $dto->variables);
+        $this->assertEquals(['key' => 'value'], $dto->metadata);
+        $this->assertEquals(MessagePriority::HIGH, $dto->priority);
+    }
+
+    public function testSMSDTOFromArray(): void
+    {
+        $data = [
+            'phone' => '+5511999999999',
+            'message' => 'Test message',
+            'metadata' => ['key' => 'value'],
+            'priority' => MessagePriority::NORMAL,
+        ];
+
+        $dto = SMSMessage::fromArray($data);
+
+        $this->assertEquals('+5511999999999', $dto->phone);
+        $this->assertEquals('Test message', $dto->message);
+        $this->assertEquals(['key' => 'value'], $dto->metadata);
+        $this->assertEquals(MessagePriority::NORMAL, $dto->priority);
+    }
+
+    public function testWhatsAppDTOFromArray(): void
+    {
+        $data = [
+            'phone' => '+5511999999999',
+            'message' => 'Test message',
+            'media' => 'https://example.com/image.jpg',
+            'metadata' => ['key' => 'value'],
+            'priority' => MessagePriority::HIGH,
+        ];
+
+        $dto = WhatsAppMessage::fromArray($data);
+
+        $this->assertEquals('+5511999999999', $dto->phone);
+        $this->assertEquals('Test message', $dto->message);
+        $this->assertEquals('https://example.com/image.jpg', $dto->media);
+        $this->assertEquals(['key' => 'value'], $dto->metadata);
+        $this->assertEquals(MessagePriority::HIGH, $dto->priority);
     }
 }
