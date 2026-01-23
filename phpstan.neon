@@ -1,0 +1,10 @@
+parameters:
+    level: 8
+    paths:
+        - src
+        - tests
+    excludePaths:
+        - tests/bootstrap.php
+    ignoreErrors:
+        # Add specific ignores if needed
+    checkMissingIterableValueType: false
