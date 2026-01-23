@@ -220,7 +220,7 @@ class MessageFactoryTest extends TestCase
     {
         $message = MessageFactory::make('sms', [
             'phone' => '+5511999999999',
-            'data' => ['message' => 'Static message'],
+            'message' => 'Static message',
         ], 'test-app');
 
         $this->assertTrue(MessageType::SMS === $message->getType(), 'Message type should be SMS');
