@@ -12,6 +12,6 @@ jobs:
       - name: Update Packagist
         run: |
           curl -XPOST -H'content-type:application/json' \
-            'https://packagist.org/api/update-package?username=${{ secrets.PACKAGIST_USERNAME }}&apiToken=${{ secrets.PACKAGIST_TOKEN }}' \
+            'https://packagist.org/api/update-package?username=${{ variables.PACKAGIST_USERNAME }}&apiToken=${{ secrets.PACKAGIST_TOKEN }}' \
             -d'{"repository":{"url":"https://github.com/Info-Esportes/messaging-rabbitmq"}}'
             -d'{"repository":{"url":"https://github.com/Info-Esportes/messaging-rabbitmq"}}'
