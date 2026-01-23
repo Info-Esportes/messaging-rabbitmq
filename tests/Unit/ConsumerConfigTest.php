@@ -148,8 +148,8 @@ class ConsumerConfigTest extends TestCase
             'keepalive' => 1,
             'auto_ack' => 1,
             'no_local' => 0,
-            'exclusive' => 'true',
-            'no_wait' => 'false',
+            'exclusive' => true,
+            'no_wait' => false,
         ]);
 
         $this->assertTrue($config->isKeepalive());
