@@ -94,6 +94,7 @@ class PublisherConfig
             'host' => $this->host,
             'port' => $this->port,
             'user' => $this->user,
+            'password' => $this->password,
             'vhost' => $this->vhost,
             'exchange' => $this->exchange,
             'connection_timeout' => $this->connectionTimeout,
