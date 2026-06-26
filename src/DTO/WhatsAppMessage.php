@@ -8,8 +8,10 @@ class WhatsAppMessage
 {
     public function __construct(
         public readonly string $phone,
-        public readonly string $message,
+        public readonly ?string $message = null,
         public readonly ?string $media = null,
+        public readonly ?string $template = null,
+        public readonly array $variables = [],
         public readonly array $metadata = [],
         public readonly int $priority = 2 // MessagePriority::HIGH
     ) {}
@@ -23,6 +25,8 @@ class WhatsAppMessage
             phone: $data['phone'] ?? '',
             message: $data['message'] ?? '',
             media: $data['media'] ?? null,
+            template: $data['template'] ?? null,
+            variables: $data['variables'] ?? [],
             metadata: $data['metadata'] ?? [],
             priority: $data['priority'] ?? 2
         );
@@ -37,6 +41,8 @@ class WhatsAppMessage
             'phone' => $this->phone,
             'message' => $this->message,
             'media' => $this->media,
+            'template' => $this->template,
+            'variables' => $this->variables,
             'metadata' => $this->metadata,
             'priority' => $this->priority,
         ];

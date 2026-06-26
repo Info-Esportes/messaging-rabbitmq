@@ -8,8 +8,8 @@ class EmailMessage
 {
     public function __construct(
         public readonly string $to,
-        public readonly string $subject,
-        public readonly string $body,
+        public readonly ?string $subject = null,
+        public readonly ?string $body = null,
         public readonly ?string $template = null,
         public readonly array $variables = [],
         public readonly array $metadata = [],
@@ -23,8 +23,8 @@ class EmailMessage
     {
         return new self(
             to: $data['to'] ?? '',
-            subject: $data['subject'] ?? '',
-            body: $data['body'] ?? '',
+            subject: $data['subject'] ?? null,
+            body: $data['body'] ?? null,
             template: $data['template'] ?? null,
             variables: $data['variables'] ?? [],
             metadata: $data['metadata'] ?? [],

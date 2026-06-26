@@ -21,7 +21,7 @@ class MessageFactory
         $this->validator = new MessageValidator();
     }
 
-    public static function make(string $type, array|EmailMessage|SMSMessage|WhatsAppMessage $data, string $source = 'unknown'): Message
+    public static function make(string $type, mixed $data, string $source = 'unknown'): Message
     {
         $factory = new self($source);
 
@@ -116,6 +116,8 @@ class MessageFactory
         return $this->createSMSMessage(
             $dto->phone,
             $dto->message,
+            $dto->template,
+            $dto->variables,
             $dto->metadata,
             $dto->priority
         );
@@ -133,7 +135,9 @@ class MessageFactory
      */
     public function createSMSMessage(
         string $phone,
-        string $message,
+        ?string $message = null,
+        ?string $template = null,
+        array $variables = [],
         array $metadata = [],
         int $priority = MessagePriority::HIGH
     ): Message {
@@ -142,19 +146,19 @@ class MessageFactory
             throw new ValidationException("Invalid phone number: {$phone}");
         }
 
-        if (empty($message)) {
+        if (empty($message) && empty($template)) {
             throw new ValidationException('SMS message cannot be empty');
         }
 
         // Check message length (standard SMS limit)
-        if (strlen($message) > 1600) {
+        if ($message !== null && strlen($message) > 1600) {
             throw new ValidationException('SMS message too long (max 1600 characters)');
         }
 
         return new Message(
             'sms',
             $phone,
-            ['message' => $message],
+            ['message' => $message, 'template' => $template, 'variables' => $variables],
             array_merge(['source' => $this->defaultSource], $metadata),
             ['priority' => $priority]
         );
@@ -171,6 +175,8 @@ class MessageFactory
             $dto->phone,
             $dto->message,
             $dto->media,
+            $dto->template,
+            $dto->variables,
             $dto->metadata,
             $dto->priority
         );
@@ -191,6 +197,8 @@ class MessageFactory
         string $phone,
         string $message,
         ?string $media = null,
+        ?string $template = null,
+        array $variables = [],
         array $metadata = [],
         int $priority = MessagePriority::NORMAL
     ): Message {
@@ -199,7 +207,7 @@ class MessageFactory
             throw new ValidationException("Invalid phone number: {$phone}");
         }
 
-        if (empty($message)) {
+        if (empty($message) && empty($template)) {
             throw new ValidationException('WhatsApp message cannot be empty');
         }
 
@@ -214,6 +222,8 @@ class MessageFactory
             [
                 'message' => $message,
                 'media' => $media,
+                'template' => $template,
+                'variables' => $variables,
             ],
             array_merge(['source' => $this->defaultSource], $metadata),
             ['priority' => $priority]

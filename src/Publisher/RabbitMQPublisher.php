@@ -72,14 +72,14 @@ class RabbitMQPublisher implements MessagePublisherInterface
         }
     }
 
-    public function sendEmail(string $to, string $subject, string $body, array $data = [], string $routingKey = 'email.transactional', int $priority = 5): bool
+    public function sendEmail(string $to, ?string $subject = null, ?string $body = null, ?string $template = null, array $variables = [], array $data = [], string $routingKey = 'email.transactional', int $priority = 5): bool
     {
         $message = $this->factory->createEmailMessage(
             $to,
             $subject,
             $body,
-            $data['template'] ?? null,
-            $data['variables'] ?? [],
+            $template,
+            $variables,
             $data['metadata'] ?? [],
             $priority
         );
@@ -92,9 +92,9 @@ class RabbitMQPublisher implements MessagePublisherInterface
         );
     }
 
-    public function sendSMS(string $phone, string $message, string $routingKey = 'sms.message', int $priority = 8): bool
+    public function sendSMS(string $phone, ?string $message = null, ?string $template = null, array $variables = [], string $routingKey = 'sms.message', int $priority = 8): bool
     {
-        $msg = $this->factory->createSMSMessage($phone, $message, [], $priority);
+        $msg = $this->factory->createSMSMessage($phone, $message, $template, $variables, [], $priority);
 
         return $this->publish(
             $this->config->getExchange(),
@@ -104,9 +104,9 @@ class RabbitMQPublisher implements MessagePublisherInterface
         );
     }
 
-    public function sendWhatsApp(string $phone, string $message, string $routingKey = 'whatsapp.notification', ?string $media = null, int $priority = 7): bool
+    public function sendWhatsApp(string $phone, ?string $message = null, ?string $template = null, array $variables = [], string $routingKey = 'whatsapp.notification', ?string $media = null, int $priority = 7): bool
     {
-        $msg = $this->factory->createWhatsAppMessage($phone, $message, $media, [], $priority);
+        $msg = $this->factory->createWhatsAppMessage($phone, $message, $media, $template, $variables, [], $priority);
 
         return $this->publish(
             $this->config->getExchange(),
@@ -169,7 +169,7 @@ class RabbitMQPublisher implements MessagePublisherInterface
                 true,   // durable
                 false   // auto_delete
             );
-        } catch (AMQPConnectionClosedException|AMQPIOException $e) {
+        } catch (AMQPConnectionClosedException | AMQPIOException $e) {
             throw new ConnectionException("Failed to connect to RabbitMQ: {$e->getMessage()}", 0, $e);
         }
     }

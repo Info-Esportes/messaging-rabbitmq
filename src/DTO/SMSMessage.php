@@ -8,7 +8,9 @@ class SMSMessage
 {
     public function __construct(
         public readonly string $phone,
-        public readonly string $message,
+        public readonly ?string $message = null,
+        public readonly ?string $template = null,
+        public readonly array $variables = [],
         public readonly array $metadata = [],
         public readonly int $priority = 2 // MessagePriority::HIGH
     ) {}
@@ -20,7 +22,9 @@ class SMSMessage
     {
         return new self(
             phone: $data['phone'] ?? '',
-            message: $data['message'] ?? '',
+            message: $data['message'] ?? null,
+            template: $data['template'] ?? null,
+            variables: $data['variables'] ?? [],
             metadata: $data['metadata'] ?? [],
             priority: $data['priority'] ?? 2
         );
