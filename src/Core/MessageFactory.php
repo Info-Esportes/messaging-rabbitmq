@@ -76,8 +76,8 @@ class MessageFactory
      */
     public function createEmailMessage(
         string $to,
-        string $subject,
-        string $body,
+        ?string $subject = null,
+        ?string $body = null,
         ?string $template = null,
         array $variables = [],
         array $metadata = [],
@@ -88,8 +88,8 @@ class MessageFactory
             throw new ValidationException("Invalid email address: {$to}");
         }
 
-        if (empty($subject)) {
-            throw new ValidationException('Email subject cannot be empty');
+        if (empty($subject) && empty($body) && empty($template)) {
+            throw new ValidationException('Email subject, body and template cannot be empty');
         }
 
         return new Message(
